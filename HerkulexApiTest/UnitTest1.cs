@@ -1,0 +1,58 @@
+﻿
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using HerkulexApi;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace HerkulexApiTest
+{
+    [TestClass]
+    public class UnitTest1
+    {
+        private HerkulexServo myServo;
+        private HerkulexServo myServo1;
+        private HerkulexInterfaceConnector myHerkulexInterface; 
+
+         [TestInitialize]
+        public void InititalizeMotor()
+        {
+            myHerkulexInterface = new HerkulexInterfaceConnector("COM4", 57600);
+            myServo = new HerkulexServo(219, myHerkulexInterface);
+            myServo1 = new HerkulexServo(218, myHerkulexInterface);
+        }
+
+        [TestMethod]
+        public void TurnMotor()
+        {
+            myServo.TorqueOn();
+            myServo.AccelerationRatio(0);
+            myServo1.TorqueOn();
+            myServo1.AccelerationRatio(0);
+            var watch = new Stopwatch(); 
+            for (int i = 0; i < 20; i++)
+            {
+                var task1 = new Task(() => myServo.MoveServoPosition(-30, 50));
+                var task2 = new Task(() => myServo1.MoveServoPosition(-30, 50));
+                var taskList1 = new List<Task>() { task1, task2 };
+                watch.Start();
+                task1.Start();
+                task2.Start();
+                Task.WaitAll(taskList1.ToArray());
+                watch.Stop();
+                Console.WriteLine(watch.ElapsedMilliseconds);
+                watch.Reset();
+                var task3 = new Task(() => myServo.MoveServoPosition(30, 200));
+                var task4 = new Task(() => myServo1.MoveServoPosition(30, 200));
+                var taskList2 = new List<Task>() { task3, task4 };
+                task3.Start();
+                task4.Start();
+                Task.WaitAll(taskList2.ToArray());
+            }
+            myHerkulexInterface.Close();
+        }
+    }
+}
