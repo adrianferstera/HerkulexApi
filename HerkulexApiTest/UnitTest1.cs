@@ -23,6 +23,14 @@ namespace HerkulexApiTest
             myHerkulexInterface = new HerkulexInterfaceConnector("COM4", 57600);
             myServo = new HerkulexServo(219, myHerkulexInterface);
             myServo1 = new HerkulexServo(218, myHerkulexInterface);
+            myServo.NeutralPosition = 60;
+            myServo1.NeutralPosition = 60; 
+        }
+
+        [TestCleanup]
+        public void CleanUp()
+        {
+            myHerkulexInterface.Close();
         }
 
         [TestMethod]
@@ -52,7 +60,57 @@ namespace HerkulexApiTest
                 task4.Start();
                 Task.WaitAll(taskList2.ToArray());
             }
-            myHerkulexInterface.Close();
+            
         }
+
+        [TestMethod]
+        public void PlayWaveForm()
+        {
+            myServo.TorqueOn();
+            myServo.AccelerationRatio(40);
+            myServo1.TorqueOn();
+            myServo1.AccelerationRatio(40);
+            var servoList = new List<HerkulexServo>(){myServo, myServo1};
+            var targetList = new List<double>();
+
+            targetList.Add(1);
+            targetList.Add(0);
+            targetList.Add(1);
+            targetList.Add(0);
+            targetList.Add(1);
+            targetList.Add(0);
+            var replayer = new Replayer(-60, 60);
+            replayer.Start(targetList, 400, servoList);
+        }
+
+        [TestMethod]
+        public void MoveToNeutralPosition()
+        {
+            myServo.TorqueOn();
+            myServo.AccelerationRatio(10);
+            myServo1.TorqueOn();
+            myServo1.AccelerationRatio(10);
+            myServo.MoveServoPosition(-60, 1000);
+            myServo1.MoveServoPosition(60, 1000);
+        }
+        [TestMethod]
+        public void PlayWaveFormOneServo()
+        {
+            myServo.TorqueOn();
+            myServo.MoveToNeutralPosition();
+            myServo.AccelerationRatio(10);
+           
+            var targetList = new List<double>();
+
+            targetList.Add(60);
+            targetList.Add(-60);
+            targetList.Add(60);
+            targetList.Add(-60);
+            targetList.Add(60);
+            targetList.Add(-60);
+
+            myServo.PlaySeries(targetList, 400);
+        }
+
     }
 }

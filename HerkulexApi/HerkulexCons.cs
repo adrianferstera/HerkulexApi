@@ -128,6 +128,7 @@ namespace HerkulexApi
         ABSOLUTE_DESIRED_TRAJECTORY_POSITION = 70,
         DESIRED_VELOCITY_RAM = 72
     }
+
          
     /*
         public static byte BYTE1 = 0x01;

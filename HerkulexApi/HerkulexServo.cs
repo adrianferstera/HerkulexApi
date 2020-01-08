@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace HerkulexApi
@@ -11,7 +12,7 @@ namespace HerkulexApi
         private const int MinServoPosition = 10627;
         private const double MaxDegrees = 159.6;
         private const double MinDegrees = -159.9;
-        private const int NeutralPos = 0;
+        private int neutralPos = 0;
         private const double DegreesRange = MaxDegrees - MinDegrees;
         private const double MaxSpeed = 0.00274; // [s/degree]
         private const double MsPerCount = 11.2;
@@ -20,15 +21,32 @@ namespace HerkulexApi
         private double LastPos = 0;
         private int AccRatio = 60;
 
+        public int NeutralPosition
+        {
+            get => neutralPos;
+            set
+            {
+                if (value < MaxDegrees && value > MinDegrees)
+                {
+                    neutralPos = value;
+                }
+            }
+        }
+
         public HerkulexServo(int id, HerkulexInterfaceConnector myConnector)
         {
             Id = id;
             this.MyConnector = myConnector;
             TorqueOn();
             AccelerationRatio(AccRatio);
-            MoveServoPosition(NeutralPos, 1000);
+            //MoveToNeutralPosition();
             Thread.Sleep(500);
             TorqueOff();
+        }
+
+        public void MoveToNeutralPosition()
+        {
+            MoveServoPosition(neutralPos, 1000);
         }
 
         public void TorqueOn()
@@ -70,7 +88,8 @@ namespace HerkulexApi
             var myCommand = new HerkulexCommand(HerkulexCmd.S_JOG_REQ, Id);
             var myCommandHeader = new List<int>() { playTimeForServo, lsb, msb, 0x00, Id }; //0x04 stands fo color
             var accelerationTime = Convert.ToDouble(myPlayTime) * Convert.ToDouble(AccRatio) * 0.01;
-            var sleepingTime = Convert.ToInt32(myPlayTime + 2 * accelerationTime+10);
+            //var sleepingTime = Convert.ToInt32(myPlayTime + 2 * accelerationTime);
+            var sleepingTime = Convert.ToInt32(myPlayTime+10);
             MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));
             LastPos = position;
             Thread.Sleep(sleepingTime);
@@ -89,6 +108,14 @@ namespace HerkulexApi
             return false;
         }
 
+        public void PlaySeries(List<double> targets, int playTime)
+        {
+            foreach (var target in targets)
+            {
+                MoveServoPosition(target, playTime);
+            }
+        }
+
         public void Reboot()
         {
             var myCommand = new HerkulexCommand(HerkulexCmd.REBOOT_REQ, Id);
@@ -98,10 +125,13 @@ namespace HerkulexApi
 
         public void AccelerationRatio(int ratio)
         {
-            this.AccRatio = ratio;
+            if (ratio > 60) this.AccRatio = 60;
+            else if (ratio < 0) this.AccRatio = 0; 
+            else this.AccRatio = ratio;
             var myCommand = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
             var myCommandHeader = new List<int>() { (int)Ram.ACCELERATION_RATIO_EEP, 1, ratio };
             MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));
+            Thread.Sleep(100);
         }
     }
 }

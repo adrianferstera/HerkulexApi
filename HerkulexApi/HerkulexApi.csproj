@@ -44,7 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Replayer.cs" />
     <Compile Include="HerkulexCommand.cs" />
     <Compile Include="HerkulexCons.cs" />
     <Compile Include="HerkulexInterfaceConnector.cs" />

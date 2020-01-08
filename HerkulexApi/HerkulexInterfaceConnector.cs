@@ -23,15 +23,24 @@ namespace HerkulexApi
             }
         }
 
+        public static string[] AvailableSerialPorts()
+        {
+            var availableSerialPorts = SerialPort.GetPortNames(); 
+            return availableSerialPorts;
+        }
+
         public void Close()
         {
-            try
+            if (MySerialPort.IsOpen)
             {
-                MySerialPort.Close();
-            }
-            catch (Exception)
-            {
-                throw new Exception("Could not close the Serialport\n");
+                try
+                {
+                    MySerialPort.Close();
+                }
+                catch (Exception)
+                {
+                    throw new Exception("Could not close the Serialport\n");
+                }
             }
         }
 
@@ -39,8 +48,6 @@ namespace HerkulexApi
         {
             try
             {
-                /*MySerialPort.DiscardInBuffer();
-                MySerialPort.DiscardOutBuffer();*/
                 MySerialPort.Write(data, 0, data.Length);
             }
             catch (Exception e)
@@ -65,7 +72,8 @@ namespace HerkulexApi
 
         public byte[] Read(int length)
         {
-            
+            MySerialPort.DiscardInBuffer();
+            MySerialPort.DiscardOutBuffer();
             byte[] myBuffer = new byte[length];
            //var values = MySerialPort.ReadLine();
             MySerialPort.Read(myBuffer, 0, length);
