@@ -30,6 +30,8 @@ namespace HerkulexApiTest
         [TestCleanup]
         public void CleanUp()
         {
+            myServo.Reboot();
+            myServo1.Reboot();
             myHerkulexInterface.Close();
         }
 
@@ -73,14 +75,14 @@ namespace HerkulexApiTest
             var servoList = new List<HerkulexServo>(){myServo, myServo1};
             var targetList = new List<double>();
 
-            targetList.Add(1);
-            targetList.Add(0);
-            targetList.Add(1);
-            targetList.Add(0);
-            targetList.Add(1);
-            targetList.Add(0);
+            targetList.Add(0.8);
+            targetList.Add(0.2);
+            targetList.Add(0.8);
+            targetList.Add(0.2);
+            targetList.Add(0.8);
+            targetList.Add(0.2);
             var replayer = new Replayer(-60, 60);
-            replayer.Start(targetList, 400, servoList);
+            replayer.Start(targetList, 100, servoList);
         }
 
         [TestMethod]
@@ -110,6 +112,11 @@ namespace HerkulexApiTest
             targetList.Add(-60);
 
             myServo.PlaySeries(targetList, 400);
+        }
+
+        [TestMethod]
+        public void ReopenPort()
+        {
         }
 
     }

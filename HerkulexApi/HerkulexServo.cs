@@ -12,9 +12,12 @@ namespace HerkulexApi
         private const int MinServoPosition = 10627;
         private const double MaxDegrees = 159.6;
         private const double MinDegrees = -159.9;
+       
         private int neutralPos = 0;
         private const double DegreesRange = MaxDegrees - MinDegrees;
-        private const double MaxSpeed = 0.00274; // [s/degree]
+        public readonly double MaxSpeed = 0.00274; // [s/degree]
+        public readonly int MaxAccRatio = 80;
+        public readonly int MinAccRatio = 0; 
         private const double MsPerCount = 11.2;
         private const double MaximumAccTime = MsPerCount * 255;
         private readonly HerkulexInterfaceConnector MyConnector;
@@ -125,8 +128,8 @@ namespace HerkulexApi
 
         public void AccelerationRatio(int ratio)
         {
-            if (ratio > 60) this.AccRatio = 60;
-            else if (ratio < 0) this.AccRatio = 0; 
+            if (ratio > MaxAccRatio) this.AccRatio = MaxAccRatio;
+            else if (ratio < MinAccRatio) this.AccRatio = MinAccRatio; 
             else this.AccRatio = ratio;
             var myCommand = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
             var myCommandHeader = new List<int>() { (int)Ram.ACCELERATION_RATIO_EEP, 1, ratio };

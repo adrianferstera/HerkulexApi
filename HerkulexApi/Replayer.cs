@@ -19,19 +19,13 @@ namespace HerkulexApi
             minLimDegrees = minLimit;
             maxLimDegrees = maxLimit;
         }
-        public void Start(List<double> values, int playTime, List<HerkulexServo> servos)
+        public void Start(List<double> values, int playTime, List<HerkulexServo> servos, double phaseShift = Math.PI/2)
         {
-            /*foreach (var servo in servos)
-            {
-                servo.MoveToNeutralPosition();
-            }*/
-
             var valuesInDegrees = values.Select(el => (maxLimDegrees - minLimDegrees) * el + minLimDegrees).ToList(); 
-            //var valueInDegrees = (maxLimDegrees - minLimDegrees) * value + minLimDegrees;
             var task1 = new Task(() => servos.First().PlaySeries(valuesInDegrees, playTime));
             var task2 = new Task(() => servos.Last().PlaySeries(valuesInDegrees, playTime));
             task1.Start();
-            Thread.Sleep(Convert.ToInt32(playTime * 0.5));
+            Thread.Sleep(Convert.ToInt32(playTime * phaseShift/Math.PI));
             task2.Start();
             task1.Wait();
             task2.Wait(); 
