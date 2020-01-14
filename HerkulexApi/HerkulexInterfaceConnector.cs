@@ -2,25 +2,42 @@
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
+using System.Threading;
 
 namespace HerkulexApi
 {
     public class HerkulexInterfaceConnector
     {
         public SerialPort MySerialPort;
+        public bool IsOpen => MySerialPort.IsOpen;
 
         public HerkulexInterfaceConnector(string portName, int baudRate)
         {
             try
             {
                 MySerialPort = new SerialPort(portName, baudRate);
-                MySerialPort.ReadTimeout = 1000; 
+                MySerialPort.ReadTimeout = 5000; 
                 MySerialPort.Open();
             }
             catch (Exception e)
             {
                 throw e;
             }
+        }
+
+        public void Reopen()
+        {
+            try
+            {
+                MySerialPort.Close();
+                Thread.Sleep(100);
+                MySerialPort.Open();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            
         }
 
         public static string[] AvailableSerialPorts()
@@ -79,5 +96,35 @@ namespace HerkulexApi
             MySerialPort.Read(myBuffer, 0, length);
             return myBuffer; 
         }
+        public byte[] SendAndRead(int length, byte[] data)
+        {
+            MySerialPort.DiscardInBuffer();
+            MySerialPort.DiscardOutBuffer();
+            Reopen();
+            byte[] myBuffer = new byte[data.Length+length];
+            Thread.Sleep(500);
+            try
+            {
+                MySerialPort.Write(data, 0, data.Length);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            Thread.Sleep(100);
+            try
+            {
+                MySerialPort.Read(myBuffer, 0, myBuffer.Length);
+            }
+            catch (TimeoutException e)
+            {
+                throw new TimeoutException("Power is not connected to the Interface. Please check power source.");
+            }
+            catch (Exception e)
+            {
+                throw e; 
+            }
+            return myBuffer;
         }
+    }
 }

@@ -1,6 +1,9 @@
 ﻿
+using System.Collections.Generic;
+
 namespace HerkulexApi
 {
+    
     public enum HerkulexCmd
     {
         EEP_WRITE_REQ = 0x01,
@@ -14,6 +17,7 @@ namespace HerkulexApi
         REBOOT_REQ = 0x09
     }
 
+   
     public enum ACKPackage
     {
         EEP_WRITE_ACK = 0x41,
@@ -126,7 +130,8 @@ namespace HerkulexApi
         ABSOLUTE_SECOND_POSITION_RAM = 66,
         ABSOLUTE_GOAL_POSITION_RAM = 68,
         ABSOLUTE_DESIRED_TRAJECTORY_POSITION = 70,
-        DESIRED_VELOCITY_RAM = 72
+        DESIRED_VELOCITY_RAM = 72, 
+        START_SEQUENCE = 255
     }
 
          

@@ -60,6 +60,10 @@
       <Project>{2d16efa4-a732-47c5-b19b-b77893b3ff59}</Project>
       <Name>HerkulexApi</Name>
     </ProjectReference>
+    <ProjectReference Include="..\HerkulexGuiMapper\HerkulexGuiMapper.csproj">
+      <Project>{ba21c66c-de1a-46b3-aa7b-3c3faf66931c}</Project>
+      <Name>HerkulexGuiMapper</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

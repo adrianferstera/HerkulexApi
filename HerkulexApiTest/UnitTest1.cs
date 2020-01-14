@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HerkulexApi;
+using HerkulexGuiMapper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace HerkulexApiTest
@@ -73,16 +74,15 @@ namespace HerkulexApiTest
             myServo1.TorqueOn();
             myServo1.AccelerationRatio(40);
             var servoList = new List<HerkulexServo>(){myServo, myServo1};
-            var targetList = new List<double>();
-
-            targetList.Add(0.8);
-            targetList.Add(0.2);
-            targetList.Add(0.8);
-            targetList.Add(0.2);
-            targetList.Add(0.8);
-            targetList.Add(0.2);
+            var targetList = new List<Datapoint>();
+            targetList.Add(new Datapoint(0, 0.2));
+            targetList.Add(new Datapoint(0.2, 0.8));
+            targetList.Add(new Datapoint(0.4, 0.2));
+            targetList.Add(new Datapoint(0.6, 0.8));
+            targetList.Add(new Datapoint(0.8, 0.2));
+            targetList.Add(new Datapoint(1, 0.8));
             var replayer = new Replayer(-60, 60);
-            replayer.Start(targetList, 100, servoList);
+            replayer.StartSeries(targetList, 1, 1, 1, 1, servoList);
         }
 
         [TestMethod]
@@ -115,8 +115,12 @@ namespace HerkulexApiTest
         }
 
         [TestMethod]
-        public void ReopenPort()
+        public void Status()
         {
+            var status1 = myServo.Status();
+            var status2 = myServo1.Status();
+            Assert.IsTrue(status1);
+            Assert.IsTrue(status2);
         }
 
     }
