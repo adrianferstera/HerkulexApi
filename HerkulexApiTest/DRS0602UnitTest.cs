@@ -24,15 +24,17 @@ namespace HerkulexApiTest
             myHerkulexInterface = new HerkulexInterfaceConnector("COM4", 57600);
             myServo = new HerkulexServo(219, myHerkulexInterface);
             myServo1 = new HerkulexServo(218, myHerkulexInterface);
+            
             myServo.NeutralPosition = 60;
-            myServo1.NeutralPosition = 60; 
+            myServo1.NeutralPosition = 60;
+            
         }
 
         [TestCleanup]
         public void CleanUp()
         {
-            myServo.Reboot();
-            myServo1.Reboot();
+            //myServo.Reboot();
+            //myServo1.Reboot();
             myHerkulexInterface.Close();
         }
 
@@ -94,7 +96,7 @@ namespace HerkulexApiTest
             myServo1.TorqueOn();
             myServo1.AccelerationRatio(10);
             myServo.MoveServoPosition(-60, 1000);
-            myServo1.MoveServoPosition(60, 1000);
+            myServo1.MoveServoPosition(-60, 1000);
         }
        
 
@@ -105,6 +107,13 @@ namespace HerkulexApiTest
             var status2 = myServo1.Status();
             Assert.IsTrue(status1);
             Assert.IsTrue(status2);
+        }
+        [TestMethod]
+        public void ColorChange()
+        {
+            myServo.SetColor(HerkulexColor.BLUE);
+            myServo1.SetColor(HerkulexColor.RED);
+            myServo1.SetColor(HerkulexColor.GREEN);
         }
 
     }

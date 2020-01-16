@@ -118,7 +118,11 @@ namespace HerkulexApi
             }
             catch (TimeoutException e)
             {
-                throw new TimeoutException("Power is not connected to the Interface. Please check power source.");
+                throw new TimeoutException("Could not communicate with the servo(s). Please check: " +
+                                           "if you have selected the correct COM Port, " +
+                                           "if the servo(s) are connected or " +
+                                           "if the servo(s) have power, " +
+                                           "if that has not solved your problem, you should contact the software engineer.");
             }
             catch (Exception e)
             {

@@ -71,11 +71,26 @@ namespace HerkulexApi
             MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));
         }
 
+       
         private int convert2PosForServo(double degrees)
         {
             var positionForServo = (Convert.ToDouble(MaxServoPosition - MinServoPosition)
                                     / DegreesRange) * (degrees - MinDegrees) + MinServoPosition;
             return Convert.ToInt32(positionForServo);
+        }
+
+        public void SetColor(HerkulexColor color)
+        {
+            var command = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
+            var finalCommand = command.ConstructMyCommand(new List<int>() {53, 0x01,(byte) color});
+            try
+            {
+                MyConnector.Send(finalCommand);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         public void MoveServoPosition(double position, int playTime)
@@ -94,7 +109,8 @@ namespace HerkulexApi
             var lsb = servoPos;
             var msb = servoPos >> 8;
             var myCommand = new HerkulexCommand(HerkulexCmd.S_JOG_REQ, Id);
-            var myCommandHeader = new List<int>() { playTimeForServo, lsb, msb, 0x00, Id }; //0x04 stands fo color
+           
+            var myCommandHeader = new List<int>() { playTimeForServo, lsb, msb,0x04, Id }; //0x04 stands fo color
             var accelerationTime = Convert.ToDouble(myPlayTime) * Convert.ToDouble(AccRatio) * 0.01;
             //var sleepingTime = Convert.ToInt32(myPlayTime + 2 * accelerationTime);
             var sleepingTime = Convert.ToInt32(myPlayTime + 10);

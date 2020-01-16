@@ -17,7 +17,16 @@ namespace HerkulexApi
         REBOOT_REQ = 0x09
     }
 
-   
+    public enum HerkulexColor
+    {
+        NO_COLOR = 0x00, 
+        GREEN = 0x01, 
+        BLUE = 0x02, 
+        RED = 0x04
+    }
+
+
+
     public enum ACKPackage
     {
         EEP_WRITE_ACK = 0x41,
