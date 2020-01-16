@@ -12,7 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace HerkulexApiTest
 {
     [TestClass]
-    public class UnitTest1
+    public class DRS0602UnitTest
     {
         private HerkulexServo myServo;
         private HerkulexServo myServo1;
@@ -39,12 +39,13 @@ namespace HerkulexApiTest
         [TestMethod]
         public void TurnMotor()
         {
+            var numberCycles = 20; 
             myServo.TorqueOn();
             myServo.AccelerationRatio(0);
             myServo1.TorqueOn();
             myServo1.AccelerationRatio(0);
             var watch = new Stopwatch(); 
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < numberCycles; i++)
             {
                 var task1 = new Task(() => myServo.MoveServoPosition(-30, 50));
                 var task2 = new Task(() => myServo1.MoveServoPosition(-30, 50));
@@ -67,7 +68,7 @@ namespace HerkulexApiTest
         }
 
         [TestMethod]
-        public void PlayWaveForm()
+        public void TestGuiMapper()
         {
             myServo.TorqueOn();
             myServo.AccelerationRatio(40);
@@ -95,24 +96,7 @@ namespace HerkulexApiTest
             myServo.MoveServoPosition(-60, 1000);
             myServo1.MoveServoPosition(60, 1000);
         }
-        [TestMethod]
-        public void PlayWaveFormOneServo()
-        {
-            myServo.TorqueOn();
-            myServo.MoveToNeutralPosition();
-            myServo.AccelerationRatio(10);
-           
-            var targetList = new List<double>();
-
-            targetList.Add(60);
-            targetList.Add(-60);
-            targetList.Add(60);
-            targetList.Add(-60);
-            targetList.Add(60);
-            targetList.Add(-60);
-
-            myServo.PlaySeries(targetList, 400);
-        }
+       
 
         [TestMethod]
         public void Status()
