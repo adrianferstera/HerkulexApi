@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Datapoint.cs" />
     <Compile Include="IServo.cs" />
     <Compile Include="HerkulexCommand.cs" />
     <Compile Include="HerkulexCons.cs" />

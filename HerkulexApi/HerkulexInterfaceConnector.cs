@@ -10,13 +10,35 @@ namespace HerkulexApi
     {
         public SerialPort MySerialPort;
         public bool IsOpen => MySerialPort.IsOpen;
+        private string portName;
+        private int baudRate; 
 
         public HerkulexInterfaceConnector(string portName, int baudRate)
         {
             try
             {
+                this.baudRate = baudRate;
+                this.portName = portName; 
                 MySerialPort = new SerialPort(portName, baudRate);
                 MySerialPort.ReadTimeout = 5000; 
+                MySerialPort.Open();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public void Reopen(int baudRate)
+        {
+            this.baudRate = baudRate; 
+
+            try
+            {
+                MySerialPort.Close();
+                Thread.Sleep(100);
+                MySerialPort = new SerialPort(portName, baudRate);
+                MySerialPort.ReadTimeout = 5000;
                 MySerialPort.Open();
             }
             catch (Exception e)

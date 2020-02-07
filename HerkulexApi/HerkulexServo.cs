@@ -8,10 +8,12 @@ namespace HerkulexApi
 {
     public class HerkulexServo : IServo
     {
-        public int Id { get; }
+        public int Id { get; private set;  }
         public readonly double MaxSpeed = 0.00274; // [s/degree]
         public readonly int MaxAccRatio = 80;
         public readonly int MinAccRatio = 0;
+        
+
         public int NeutralPosition
         {
             get => neutralPos;
@@ -60,18 +62,18 @@ namespace HerkulexApi
         public void TorqueOn()
         {
             var myCommand = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
-            var myCommandHeader = new List<int>() { (int)Torque.RAM, 0x01, (int)Torque.ON };
+            var myCommandHeader = new List<int>() {(int) Torque.RAM, 0x01, (int) Torque.ON};
             MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));
         }
 
         public void TorqueOff()
         {
             var myCommand = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
-            var myCommandHeader = new List<int>() { (int)Torque.RAM, 0x01, (int)Torque.OFF };
+            var myCommandHeader = new List<int>() {(int) Torque.RAM, 0x01, (int) Torque.OFF};
             MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));
         }
 
-       
+
         private int convert2PosForServo(double degrees)
         {
             var positionForServo = (Convert.ToDouble(MaxServoPosition - MinServoPosition)
@@ -82,7 +84,7 @@ namespace HerkulexApi
         public void SetColor(HerkulexColor color)
         {
             var command = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
-            var finalCommand = command.ConstructMyCommand(new List<int>() {53, 0x01,(byte) color});
+            var finalCommand = command.ConstructMyCommand(new List<int>() {53, 0x01, (byte) color});
             try
             {
                 MyConnector.Send(finalCommand);
@@ -96,21 +98,23 @@ namespace HerkulexApi
         public void MoveServoPosition(double position, int playTime)
         {
             var myPlayTime = playTime;
-            if (Math.Abs(position) > MaxDegrees) throw new InvalidOperationException("Your desired position is out of range");
+            if (Math.Abs(position) > MaxDegrees)
+                throw new InvalidOperationException("Your desired position is out of range");
             if (myPlayTime > MaximumAccTime) myPlayTime = Convert.ToInt32(MaximumAccTime);
             var travelingTime = Convert.ToInt32(Math.Abs(position - LastPos) * MaxSpeed * 1000); //milliseconds
             if (travelingTime > myPlayTime)
             {
                 myPlayTime = travelingTime;
             }
+
             var playTimeForServo = Convert.ToInt32(Convert.ToDouble(myPlayTime) / MsPerCount);
 
             var servoPos = convert2PosForServo(position);
             var lsb = servoPos;
             var msb = servoPos >> 8;
             var myCommand = new HerkulexCommand(HerkulexCmd.S_JOG_REQ, Id);
-           
-            var myCommandHeader = new List<int>() { playTimeForServo, lsb, msb,0x04, Id }; //0x04 stands fo color
+
+            var myCommandHeader = new List<int>() {playTimeForServo, lsb, msb, 0x04, Id}; //0x04 stands fo color
             var accelerationTime = Convert.ToDouble(myPlayTime) * Convert.ToDouble(AccRatio) * 0.01;
             //var sleepingTime = Convert.ToInt32(myPlayTime + 2 * accelerationTime);
             var sleepingTime = Convert.ToInt32(myPlayTime + 10);
@@ -122,7 +126,7 @@ namespace HerkulexApi
             {
                 throw e;
             }
-           
+
             LastPos = position;
             Thread.Sleep(sleepingTime);
         }
@@ -132,16 +136,17 @@ namespace HerkulexApi
             var myCommand = new HerkulexCommand(HerkulexCmd.STAT_REQ, Id);
             var myCommandHeader = new List<int>();
             var request = myCommand.ConstructMyCommand(myCommandHeader);
-            byte[] answer; 
+            byte[] answer;
             try
             {
                 answer = MyConnector.SendAndRead(20, request);
             }
             catch (Exception e)
             {
-                throw e; 
+                throw e;
             }
-            var success= ProcessHerkulexPackage(answer, HerkulexCmd.STAT_REQ, out var processedPackage);
+
+            var success = ProcessHerkulexPackage(answer, HerkulexCmd.STAT_REQ, out var processedPackage);
             //things to do 
             if (success)
             {
@@ -149,16 +154,23 @@ namespace HerkulexApi
                 {
                     return true;
                 }
-                return false; 
+
+                return false;
             }
+
             return false;
         }
 
-        public void PlaySeries(IEnumerable<double> targets, int playTime)
+        public void PlaySeries(IEnumerable<Datapoint> targets)
         {
             foreach (var target in targets)
             {
-                MoveServoPosition(target, playTime);
+                if (AccRatio != target.AccelerationRatio && target.AccelerationRatio >0)
+                {
+                    AccelerationRatio(target.AccelerationRatio);
+                }
+                var t = Convert.ToInt32(target.xValue); 
+                MoveServoPosition(target.yValue, t);
             }
         }
 
@@ -168,6 +180,45 @@ namespace HerkulexApi
             var myCommandHeader = new List<int>();
             MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));
         }
+
+        public void ChangeBaudRate(HerkulexBaudRate baudRate)
+        {
+            //After u used this method, close the serial port and reopen it with the new baud rate 
+            var myCommand = new HerkulexCommand(HerkulexCmd.EEP_WRITE_REQ, Id);
+            var myCommandHeader = new List<int>(){(int)Ram.BAUD_RATE_EEP,0x01, (int)baudRate };
+            try
+            {
+                MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));
+                Thread.Sleep(1000);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            Reboot();
+        }
+
+        public bool ChangeId(int newId)
+        {
+            var myCommand = new HerkulexCommand(HerkulexCmd.EEP_WRITE_REQ, Id);
+            var myCommandHeader = new List<int>() { (int)Ram.SERVO_ID_EEP, 0x01, (int)newId };
+            try
+            {
+                MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));
+                Thread.Sleep(1000);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            Reboot();
+            Id = newId;
+            Thread.Sleep(2000);
+            var status = Status();
+            if (status) return true;
+            return false; 
+        }
+
 
         public void AccelerationRatio(int ratio)
         {
