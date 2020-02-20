@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HerkulexApi", "HerkulexApi\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HerkulexApiTest", "HerkulexApiTest\HerkulexApiTest.csproj", "{7632378C-30E1-49EE-8014-8ECA0BF8280A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HerkulexGuiMapper", "HerkulexGuiMapper\HerkulexGuiMapper.csproj", "{BA21C66C-DE1A-46B3-AA7B-3C3FAF66931C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HerkulexGuiMapper", "HerkulexGuiMapper\HerkulexGuiMapper.csproj", "{BA21C66C-DE1A-46B3-AA7B-3C3FAF66931C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

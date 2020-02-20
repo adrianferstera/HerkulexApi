@@ -70,7 +70,7 @@ namespace HerkulexApi
         {
             var myCommand = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
             var myCommandHeader = new List<int>() {(int) Torque.RAM, 0x01, (int) Torque.OFF};
-            MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));
+            MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));//do try and catch 
         }
 
 
@@ -84,7 +84,7 @@ namespace HerkulexApi
         public void SetColor(HerkulexColor color)
         {
             var command = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
-            var finalCommand = command.ConstructMyCommand(new List<int>() {53, 0x01, (byte) color});
+            var finalCommand = command.ConstructMyCommand(new List<int>() {53, 0x01, (byte) color});//Address of color is 53
             try
             {
                 MyConnector.Send(finalCommand);
@@ -114,8 +114,8 @@ namespace HerkulexApi
             var msb = servoPos >> 8;
             var myCommand = new HerkulexCommand(HerkulexCmd.S_JOG_REQ, Id);
 
-            var myCommandHeader = new List<int>() {playTimeForServo, lsb, msb, 0x04, Id}; //0x04 stands fo color
-            var accelerationTime = Convert.ToDouble(myPlayTime) * Convert.ToDouble(AccRatio) * 0.01;
+            var myCommandHeader = new List<int>() {playTimeForServo, lsb, msb, 0x04, Id}; //0x04 stands for color green
+            //var accelerationTime = Convert.ToDouble(myPlayTime) * Convert.ToDouble(AccRatio) * 0.01;
             //var sleepingTime = Convert.ToInt32(myPlayTime + 2 * accelerationTime);
             var sleepingTime = Convert.ToInt32(myPlayTime + 10);
             try
@@ -147,7 +147,7 @@ namespace HerkulexApi
             }
 
             var success = ProcessHerkulexPackage(answer, HerkulexCmd.STAT_REQ, out var processedPackage);
-            //things to do 
+            //things to do error checking for all errors according to page 41
             if (success)
             {
                 if (processedPackage[processedPackage.Count - 1] == 0 && processedPackage.Last() == 0)
@@ -165,9 +165,10 @@ namespace HerkulexApi
         {
             foreach (var target in targets)
             {
+                //target = minimum/maximum points of the waveform
                 if (AccRatio != target.AccelerationRatio && target.AccelerationRatio >0)
                 {
-                    AccelerationRatio(target.AccelerationRatio);
+                   // AccelerationRatio(target.AccelerationRatio);
                 }
                 var t = Convert.ToInt32(target.xValue); 
                 MoveServoPosition(target.yValue, t);
@@ -222,6 +223,7 @@ namespace HerkulexApi
 
         public void AccelerationRatio(int ratio)
         {
+            //higher the ratio, smoother the acceleration 
             if (ratio > MaxAccRatio) this.AccRatio = MaxAccRatio;
             else if (ratio < MinAccRatio) this.AccRatio = MinAccRatio;
             else this.AccRatio = ratio;
@@ -235,7 +237,7 @@ namespace HerkulexApi
             {
                 throw e;
             }
-            Thread.Sleep(100);
+           // Thread.Sleep(100);
         }
 
         private bool ProcessHerkulexPackage(byte[] packages, HerkulexCmd request, out List<byte> package)
@@ -243,7 +245,6 @@ namespace HerkulexApi
             package = new List<byte>();
             var answer = cmdAckDictionary[request];
             var listPackage = packages.ToList();
-            var i = 0;
             if (listPackage.Contains((byte)answer))
             {
                 //look into manual Chapter 6,P.35 for command examples
@@ -255,7 +256,7 @@ namespace HerkulexApi
             return false; 
         }
 
-        public Dictionary<HerkulexCmd, ACKPackage> CmdAckDictionary()
+        private Dictionary<HerkulexCmd, ACKPackage> CmdAckDictionary()
         {
             var herkulexCmd = HerkulexCmd.GetValues(typeof(HerkulexCmd)).Cast<HerkulexCmd>();
             var ackRespones = ACKPackage.GetValues(typeof(ACKPackage)).Cast<ACKPackage>();

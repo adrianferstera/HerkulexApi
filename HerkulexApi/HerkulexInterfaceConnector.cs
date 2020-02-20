@@ -138,7 +138,7 @@ namespace HerkulexApi
             {
                 MySerialPort.Read(myBuffer, 0, myBuffer.Length);
             }
-            catch (TimeoutException e)
+            catch (TimeoutException)
             {
                 throw new TimeoutException("Could not communicate with the servo(s). Please check: " +
                                            "if you have selected the correct COM Port, " +

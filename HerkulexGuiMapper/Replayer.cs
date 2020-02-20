@@ -67,11 +67,6 @@ namespace HerkulexApi
             {
                 playListServos.Add(new Datapoint(0, lastYValue));
             }
-
-
-
-            //playListServos = playListServos.Select(el => el / 100).ToList();
-            // var valuesInDegrees = playListServos.Select(el => (maxLimDegrees - minLimDegrees) * el.yValue + minLimDegrees);
             var valuesInDegreesDatapoint = playListServos.Select(el =>
                 new Datapoint(el.xValue, (maxLimDegrees - minLimDegrees) * el.yValue + minLimDegrees)).ToList();
             var finalPlayValues = new List<Datapoint>();
@@ -84,56 +79,97 @@ namespace HerkulexApi
             }
             return finalPlayValues;
         }
-        public void StartSeries(WaveformType type, double fc, double maxAmplitude, double amplitude, double period, List<HerkulexServo> servos)
+        public void StartSeries(WaveformType type, double fc, double maxAmplitude, double amplitude, double period, List<HerkulexServo> servos, int startServo = 1)
         {
             var T = Convert.ToInt32(1 / fc * 1000); //T in ms
             var pauseTimeBetweenServos = T / servos.Count;
             var playValues = WaveformGenerator.GeneratePlayValues(type, fc, period, amplitude, maxAmplitude).ToList();
+            //var playValuesForServos = playValues.Select(el =>
+            //    new Datapoint(el.xValue * 1000, (maxLimDegrees - minLimDegrees) * el.yValue + minLimDegrees)
+            //    { AccelerationRatio = el.AccelerationRatio }).ToList();
             var playValuesForServos = playValues.Select(el =>
-                new Datapoint(el.xValue * 1000, (maxLimDegrees - minLimDegrees) * el.yValue + minLimDegrees)
-                { AccelerationRatio = el.AccelerationRatio }).ToList();
-
-            var taskList = new List<Task>();
-            foreach (var servo in servos)
+                new Datapoint(el.xValue * 1000, Map2ServoValue(maxLimDegrees, minLimDegrees, 1, 0, el.yValue))
+                    { AccelerationRatio = el.AccelerationRatio }).ToList();
+            
+            var replayServoOrder = OrderServoInReplayList(servos, startServo);
+            var taskList = new List<List<Task>>();
+            var awaitTaskList = new List<Task>();
+            foreach (var servoList in replayServoOrder)
             {
-                var task = new Task(() => servo.PlaySeries(playValuesForServos));
-                taskList.Add(task);
+                var temporaryTaskList = new List<Task>();
+                foreach (var servo in servoList)
+                {
+                    var task = new Task(() => servo.PlaySeries(playValuesForServos));
+                    temporaryTaskList.Add(task);
+                    awaitTaskList.Add(task);
+                }
+                taskList.Add(temporaryTaskList);
             }
 
-            /* //taskList[0].Start();
-             //Thread.Sleep(playTime);
-             taskList[1].Start();
-             Thread.Sleep(pauseTimeBetweenServos);
-             taskList[2].Start();
-             Thread.Sleep(pauseTimeBetweenServos);
-             taskList[3].Start();*/
-            //Thread.Sleep(playTime);
-            //taskList[4].Start();
-            foreach (var task in taskList)
+            foreach (var servoPairTask in taskList)
             {
-                task.Start();
-                Thread.Sleep(pauseTimeBetweenServos);
+                foreach (var servoTask in servoPairTask)
+                {
+                    servoTask.Start();
+                }
+                //Thread.Sleep(pauseTimeBetweenServos);
+               // Thread.Sleep(100);
             }
 
-            Task.WaitAll(taskList.ToArray());
+            Task.WaitAll(awaitTaskList.ToArray());
         }
 
         public void Move2Position(double value, List<HerkulexServo> servos)
         {
-            var valueInDeg = (maxLimDegrees - minLimDegrees) * value + minLimDegrees;
-            var task1 = new Task(() => servos.First().MoveServoPosition(valueInDeg, 1000));
-            var task2 = new Task(() => servos.Last().MoveServoPosition(valueInDeg, 1000));
-            task1.Start();
-            task2.Start();
-            task1.Wait();
-            task2.Wait();
+           // var valueInDeg = (maxLimDegrees - minLimDegrees) * value + minLimDegrees;
+            var valueInDeg = Map2ServoValue(maxLimDegrees, minLimDegrees, 1, 0, value); 
+            var taskList = new List<Task>();
+            foreach (var servo in servos)
+            {
+                var task = new Task(() => servo.MoveServoPosition(valueInDeg, 1000));
+                taskList.Add(task);
+            }
 
+            foreach (var task in taskList)
+            {
+                task.Start(); 
+            }
+            Task.WaitAll(taskList.ToArray()); 
         }
 
         private static double Map2ServoValue(double yMax, double yMin, double xMax, double xMin, double x)
         {
             var mappedValue = (yMax - yMin) / (xMax - xMin) * x + yMin;
             return mappedValue;
+        }
+
+        private List<List<HerkulexServo>> OrderServoInReplayList(List<HerkulexServo> myServos, int startValue)
+        {
+            var replayList = new List<List<HerkulexServo>>();
+            replayList.Add(myServos.Where(el => el.Id == startValue).ToList());
+            /*
+            replayList.Add(myServos.Where(el => el.Id == startValue + 1 || el.Id == startValue - 1).ToList());
+            replayList.Add(myServos.Where(el => el.Id == startValue + 2 || el.Id == startValue - 2).ToList());
+            replayList.Add(myServos.Where(el => el.Id == startValue + 3 || el.Id == startValue - 3).ToList());
+            replayList.Add(myServos.Where(el => el.Id == startValue + 4 || el.Id == startValue - 4).ToList());
+            replayList.Add(myServos.Where(el => el.Id == startValue + 5 || el.Id == startValue - 5).ToList());
+            replayList.Add(myServos.Where(el => el.Id == startValue + 6 || el.Id == startValue - 6).ToList());
+            replayList.Add(myServos.Where(el => el.Id == startValue + 7 || el.Id == startValue - 7).ToList());
+            replayList.Add(myServos.Where(el => el.Id == startValue + 8 || el.Id == startValue - 8).ToList());
+            replayList.Add(myServos.Where(el => el.Id == startValue + 9 || el.Id == startValue - 9).ToList());
+             return replayList.Where(el => el.Count > 0).ToList();*/
+
+            return addServoRecursive(myServos, replayList, startValue + 1, startValue - 1);
+        }
+        private List<List<HerkulexServo>> addServoRecursive(List<HerkulexServo> myServos, List<List<HerkulexServo>> replayServoList, int servoId1, int servoId2)
+        {
+            var temporaryServoList = myServos.Where(el => el.Id == servoId1 || el.Id == servoId2).ToList();
+            replayServoList.Add(temporaryServoList);
+            if (servoId1 +1 <= 8 || servoId2-1 >= 1)
+            {
+                addServoRecursive(myServos, replayServoList, servoId1 + 1, servoId2 - 1);
+            }
+            return replayServoList;
         }
     }
 }
