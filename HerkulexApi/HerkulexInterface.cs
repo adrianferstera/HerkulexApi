@@ -1,24 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO.Ports;
-using System.Linq;
 using System.Threading;
 
 namespace HerkulexApi
 {
-    public class HerkulexInterfaceConnector
+    public class HerkulexInterface
     {
         public SerialPort MySerialPort;
         public bool IsOpen => MySerialPort.IsOpen;
-        private string portName;
-        private int baudRate; 
+        public readonly string PortName;
+        public int BaudRate; 
 
-        public HerkulexInterfaceConnector(string portName, int baudRate)
+        public HerkulexInterface(string portName, int baudRate)
         {
             try
             {
-                this.baudRate = baudRate;
-                this.portName = portName; 
+                this.BaudRate = baudRate;
+                this.PortName = portName; 
                 MySerialPort = new SerialPort(portName, baudRate);
                 MySerialPort.ReadTimeout = 5000; 
                 MySerialPort.Open();
@@ -31,13 +29,13 @@ namespace HerkulexApi
 
         public void Reopen(int baudRate)
         {
-            this.baudRate = baudRate; 
+            this.BaudRate = baudRate; 
 
             try
             {
                 MySerialPort.Close();
                 Thread.Sleep(100);
-                MySerialPort = new SerialPort(portName, baudRate);
+                MySerialPort = new SerialPort(PortName, baudRate);
                 MySerialPort.ReadTimeout = 5000;
                 MySerialPort.Open();
             }
@@ -95,26 +93,11 @@ namespace HerkulexApi
             }
             
         }
-        public void Send(IEnumerable<int> data)
-        {
-            var myConvertedArray = data.ToList().ConvertAll(i => (byte) i).ToArray(); 
-            try
-            {
-                MySerialPort.Write(myConvertedArray, 0, myConvertedArray.Length);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-
-        }
-
         public byte[] Read(int length)
         {
             MySerialPort.DiscardInBuffer();
             MySerialPort.DiscardOutBuffer();
             byte[] myBuffer = new byte[length];
-           //var values = MySerialPort.ReadLine();
             MySerialPort.Read(myBuffer, 0, length);
             return myBuffer; 
         }
@@ -140,7 +123,7 @@ namespace HerkulexApi
             }
             catch (TimeoutException)
             {
-                throw new TimeoutException("Could not communicate with the servo(s). Please check: " +
+                throw new TimeoutException("Could not communicate with the Ports. Please check: " +
                                            "if you have selected the correct COM Port, " +
                                            "if the servo(s) are connected or " +
                                            "if the servo(s) have power, " +

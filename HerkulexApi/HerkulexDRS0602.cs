@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace HerkulexApi
 {
-    public class HerkulexServo : IServo
+    public class HerkulexDrs0602 : IHerkulexServo
     {
         public int Id { get; private set;  }
         public readonly double MaxSpeed = 0.00274; // [s/degree]
@@ -36,20 +35,19 @@ namespace HerkulexApi
 
         private const double MsPerCount = 11.2;
         private const double MaximumAccTime = MsPerCount * 255;
-        private readonly HerkulexInterfaceConnector MyConnector;
-        private double LastPos = 0;
-        private int AccRatio = 60;
+        private readonly HerkulexInterface myHerkulexInterface;
+        private double lastPosition = 0;
+        private int accRatio = 60;
         private Dictionary<HerkulexCmd, ACKPackage> cmdAckDictionary => CmdAckDictionary();
 
 
 
-        public HerkulexServo(int id, HerkulexInterfaceConnector myConnector)
+        public HerkulexDrs0602(int id, HerkulexInterface herkulexInterface)
         {
             Id = id;
-            this.MyConnector = myConnector;
+            myHerkulexInterface = herkulexInterface;
             TorqueOn();
-            AccelerationRatio(AccRatio);
-            //MoveToNeutralPosition();
+            AccelerationRatio(accRatio);
             Thread.Sleep(500);
             TorqueOff();
         }
@@ -63,14 +61,15 @@ namespace HerkulexApi
         {
             var myCommand = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
             var myCommandHeader = new List<int>() {(int) Torque.RAM, 0x01, (int) Torque.ON};
-            MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));
+            Send2Servo(myCommand.ConstructMyCommand(myCommandHeader));
+
         }
 
         public void TorqueOff()
         {
             var myCommand = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
             var myCommandHeader = new List<int>() {(int) Torque.RAM, 0x01, (int) Torque.OFF};
-            MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));//do try and catch 
+           Send2Servo(myCommand.ConstructMyCommand(myCommandHeader)); 
         }
 
 
@@ -85,14 +84,7 @@ namespace HerkulexApi
         {
             var command = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
             var finalCommand = command.ConstructMyCommand(new List<int>() {53, 0x01, (byte) color});//Address of color is 53
-            try
-            {
-                MyConnector.Send(finalCommand);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            Send2Servo(finalCommand);
         }
 
         public void MoveServoPosition(double position, int playTime)
@@ -101,7 +93,7 @@ namespace HerkulexApi
             if (Math.Abs(position) > MaxDegrees)
                 throw new InvalidOperationException("Your desired position is out of range");
             if (myPlayTime > MaximumAccTime) myPlayTime = Convert.ToInt32(MaximumAccTime);
-            var travelingTime = Convert.ToInt32(Math.Abs(position - LastPos) * MaxSpeed * 1000); //milliseconds
+            var travelingTime = Convert.ToInt32(Math.Abs(position - lastPosition) * MaxSpeed * 1000); //milliseconds
             if (travelingTime > myPlayTime)
             {
                 myPlayTime = travelingTime;
@@ -115,19 +107,9 @@ namespace HerkulexApi
             var myCommand = new HerkulexCommand(HerkulexCmd.S_JOG_REQ, Id);
 
             var myCommandHeader = new List<int>() {playTimeForServo, lsb, msb, 0x04, Id}; //0x04 stands for color green
-            //var accelerationTime = Convert.ToDouble(myPlayTime) * Convert.ToDouble(AccRatio) * 0.01;
-            //var sleepingTime = Convert.ToInt32(myPlayTime + 2 * accelerationTime);
-            var sleepingTime = Convert.ToInt32(myPlayTime + 10);
-            try
-            {
-                MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-
-            LastPos = position;
+           var sleepingTime = Convert.ToInt32(myPlayTime + 10);
+            Send2Servo(myCommand.ConstructMyCommand(myCommandHeader));
+            lastPosition = position;
             Thread.Sleep(sleepingTime);
         }
 
@@ -139,7 +121,7 @@ namespace HerkulexApi
             byte[] answer;
             try
             {
-                answer = MyConnector.SendAndRead(20, request);
+                answer = myHerkulexInterface.SendAndRead(20, request);
             }
             catch (Exception e)
             {
@@ -154,24 +136,22 @@ namespace HerkulexApi
                 {
                     return true;
                 }
-
                 return false;
             }
-
             return false;
         }
 
-        public void PlaySeries(IEnumerable<Datapoint> targets)
+        public void PlaySeries(IEnumerable<HerkulexDatapoint> targets)
         {
             foreach (var target in targets)
             {
                 //target = minimum/maximum points of the waveform
-                if (AccRatio != target.AccelerationRatio && target.AccelerationRatio >0)
+                if (accRatio != target.AccelerationRatio && target.AccelerationRatio >0)
                 {
-                   // AccelerationRatio(target.AccelerationRatio);
+                    AccelerationRatio(target.AccelerationRatio);
                 }
-                var t = Convert.ToInt32(target.xValue); 
-                MoveServoPosition(target.yValue, t);
+                var t = Convert.ToInt32(target.XValue); 
+                MoveServoPosition(target.YValue, t);
             }
         }
 
@@ -179,7 +159,7 @@ namespace HerkulexApi
         {
             var myCommand = new HerkulexCommand(HerkulexCmd.REBOOT_REQ, Id);
             var myCommandHeader = new List<int>();
-            MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));
+            Send2Servo(myCommand.ConstructMyCommand(myCommandHeader));
         }
 
         public void ChangeBaudRate(HerkulexBaudRate baudRate)
@@ -187,15 +167,7 @@ namespace HerkulexApi
             //After u used this method, close the serial port and reopen it with the new baud rate 
             var myCommand = new HerkulexCommand(HerkulexCmd.EEP_WRITE_REQ, Id);
             var myCommandHeader = new List<int>(){(int)Ram.BAUD_RATE_EEP,0x01, (int)baudRate };
-            try
-            {
-                MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));
-                Thread.Sleep(1000);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            Send2Servo(myCommand.ConstructMyCommand(myCommandHeader));
             Reboot();
         }
 
@@ -203,15 +175,8 @@ namespace HerkulexApi
         {
             var myCommand = new HerkulexCommand(HerkulexCmd.EEP_WRITE_REQ, Id);
             var myCommandHeader = new List<int>() { (int)Ram.SERVO_ID_EEP, 0x01, (int)newId };
-            try
-            {
-                MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));
-                Thread.Sleep(1000);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            Send2Servo(myCommand.ConstructMyCommand(myCommandHeader));
+            Thread.Sleep(1000);
             Reboot();
             Id = newId;
             Thread.Sleep(2000);
@@ -224,22 +189,33 @@ namespace HerkulexApi
         public void AccelerationRatio(int ratio)
         {
             //higher the ratio, smoother the acceleration 
-            if (ratio > MaxAccRatio) this.AccRatio = MaxAccRatio;
-            else if (ratio < MinAccRatio) this.AccRatio = MinAccRatio;
-            else this.AccRatio = ratio;
+            if (ratio > MaxAccRatio) this.accRatio = MaxAccRatio;
+            else if (ratio < MinAccRatio) this.accRatio = MinAccRatio;
+            else this.accRatio = ratio;
             var myCommand = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
             var myCommandHeader = new List<int>() { (int)Ram.ACCELERATION_RATIO_EEP, 1, ratio };
+            Send2Servo(myCommand.ConstructMyCommand(myCommandHeader));
+        }
+
+        private void Send2Servo(byte[] data)
+        {
             try
             {
-                MyConnector.Send(myCommand.ConstructMyCommand(myCommandHeader));
+                myHerkulexInterface.Send(data);
+            }
+            catch (InvalidOperationException)
+            {
+                throw new InvalidOperationException($"Could not find or lost connection servo with id {Id}.");
+            }
+            catch (TimeoutException)
+            {
+                throw new TimeoutException($"The servo with id {Id} did not answer.");
             }
             catch (Exception e)
             {
                 throw e;
             }
-           // Thread.Sleep(100);
         }
-
         private bool ProcessHerkulexPackage(byte[] packages, HerkulexCmd request, out List<byte> package)
         {
             package = new List<byte>();

@@ -1,11 +1,9 @@
-﻿using System.Threading;
-
-namespace HerkulexApi
+﻿namespace HerkulexApi
 {
-    public class Datapoint: HerkulexApi.IValue
+    public class HerkulexDatapoint
     {
-        public double xValue { get; private set; }
-        public double yValue { get; private set; }
+        public double XValue { get; private set; }
+        public double YValue { get; private set; }
         private int accelerationRatio =-1; 
         public int AccelerationRatio
         {
@@ -24,15 +22,15 @@ namespace HerkulexApi
             }
         }
 
-        public Datapoint(double xValue, double yValue)
+        public HerkulexDatapoint(double xValue, double yValue)
         {
-            this.yValue = yValue;
-            this.xValue = xValue; 
+            this.YValue = yValue;
+            this.XValue = xValue; 
         }
 
         public void ChangeXValue(double x)
         {
-            xValue = x; 
+            XValue = x; 
         }
        
     }

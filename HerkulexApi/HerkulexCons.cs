@@ -1,6 +1,4 @@
 ﻿
-using System.Collections.Generic;
-
 namespace HerkulexApi
 {
    public enum HerkulexCmd
