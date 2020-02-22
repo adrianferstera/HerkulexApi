@@ -44,12 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IServo.cs" />
+    <Compile Include="HerkulexDatapoint.cs" />
+    <Compile Include="IHerkulexServo.cs" />
     <Compile Include="HerkulexCommand.cs" />
     <Compile Include="HerkulexCons.cs" />
-    <Compile Include="HerkulexInterfaceConnector.cs" />
-    <Compile Include="HerkulexServo.cs" />
-    <Compile Include="IValue.cs" />
+    <Compile Include="HerkulexInterface.cs" />
+    <Compile Include="HerkulexDrs0602.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

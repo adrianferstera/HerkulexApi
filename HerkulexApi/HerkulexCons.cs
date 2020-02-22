@@ -1,10 +1,7 @@
 ﻿
-using System.Collections.Generic;
-
 namespace HerkulexApi
 {
-    
-    public enum HerkulexCmd
+   public enum HerkulexCmd
     {
         EEP_WRITE_REQ = 0x01,
         EEP_READ_REQ = 0x02,
@@ -15,6 +12,12 @@ namespace HerkulexApi
         STAT_REQ = 0x07,
         ROLLBACK_REQ = 0x08,
         REBOOT_REQ = 0x09
+    }
+
+    public enum HerkulexBaudRate
+    {
+         DEFAULT115200 = 0x10,
+         RATE57600 = 0x22
     }
 
     public enum HerkulexColor
