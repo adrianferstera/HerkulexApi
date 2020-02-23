@@ -124,12 +124,11 @@ namespace HerkulexApiTest
         [TestMethod]
         public void Status()
         {
-            var status1 = myServo1.Status();
-            Assert.IsTrue(status1);
-            var status2 = myServo2.Status();
-            Assert.IsTrue(status2);
-            var status3 = myServo3.Status();
-            Assert.IsTrue(status3);
+            foreach (var servo in myServos)
+            {
+                var status = servo.Status(); 
+                Assert.IsTrue(status);
+            }
         }
         [TestMethod]
         public void ColorChange()
