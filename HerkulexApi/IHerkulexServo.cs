@@ -6,6 +6,9 @@ namespace HerkulexApi
     {
         int Id { get; }
         int NeutralPosition { get; set; }
+        double MaxSpeed { get; }
+        int MaxAccRatio { get; }
+        int MinAccRatio { get; }
         void MoveToNeutralPosition();
         void TorqueOn();
         void TorqueOff();

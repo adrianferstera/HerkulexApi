@@ -8,10 +8,9 @@ namespace HerkulexApi
     public class HerkulexDrs0602 : IHerkulexServo
     {
         public int Id { get; private set;  }
-        public readonly double MaxSpeed = 0.00274; // [s/degree]
-        public readonly int MaxAccRatio = 80;
-        public readonly int MinAccRatio = 0;
-        
+        public double MaxSpeed => 0.00274;
+        public int MaxAccRatio => 80;
+        public int MinAccRatio => 0;
 
         public int NeutralPosition
         {
@@ -24,7 +23,6 @@ namespace HerkulexApi
                 }
             }
         }
-
         private const int MaxServoPosition = 22129;
         private const int MinServoPosition = 10627;
         private const double MaxDegrees = 159.6;
