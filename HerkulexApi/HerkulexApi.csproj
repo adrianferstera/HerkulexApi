@@ -46,7 +46,7 @@
   <ItemGroup>
     <Compile Include="HerkulexDatapoint.cs" />
     <Compile Include="IHerkulexServo.cs" />
-    <Compile Include="HerkulexCommand.cs" />
+    <Compile Include="HerkulexSerialCommand.cs" />
     <Compile Include="HerkulexCons.cs" />
     <Compile Include="HerkulexInterface.cs" />
     <Compile Include="HerkulexDrs0602.cs" />

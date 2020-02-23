@@ -144,24 +144,7 @@ namespace HerkulexApiTest
             myServo8.SetColor(HerkulexColor.BLUE);
 
         }
-        [TestMethod]
-        public void ChangeId()
-        {
-            var success = myServo8.ChangeId(8);
-            Assert.IsTrue(success);
-        }
-        [TestMethod]
-        public void ChangeBaudRate()
-        {
-            foreach (var servo in myServos)
-            {
-                servo.ChangeBaudRate(HerkulexBaudRate.RATE57600);
-            }
-
-            foreach (var myInterface in myInterfaces) myInterface.Reopen(57600);
-            var success = myServo1.Status();
-            Assert.IsTrue(success);
-        }
+        
 
     }
 }

@@ -57,17 +57,17 @@ namespace HerkulexApi
 
         public void TorqueOn()
         {
-            var myCommand = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
+            var myCommand = new HerkulexSerialCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
             var myCommandHeader = new List<int>() {(int) Torque.RAM, 0x01, (int) Torque.ON};
-            Send2Servo(myCommand.ConstructMyCommand(myCommandHeader));
+            Send2Servo(myCommand.ConstructSerialProtocol(myCommandHeader));
 
         }
 
         public void TorqueOff()
         {
-            var myCommand = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
+            var myCommand = new HerkulexSerialCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
             var myCommandHeader = new List<int>() {(int) Torque.RAM, 0x01, (int) Torque.OFF};
-           Send2Servo(myCommand.ConstructMyCommand(myCommandHeader)); 
+           Send2Servo(myCommand.ConstructSerialProtocol(myCommandHeader)); 
         }
 
 
@@ -80,8 +80,8 @@ namespace HerkulexApi
 
         public void SetColor(HerkulexColor color)
         {
-            var command = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
-            var finalCommand = command.ConstructMyCommand(new List<int>() {53, 0x01, (byte) color});//Address of color is 53
+            var command = new HerkulexSerialCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
+            var finalCommand = command.ConstructSerialProtocol(new List<int>() {53, 0x01, (byte) color});//Address of color is 53
             Send2Servo(finalCommand);
         }
 
@@ -102,20 +102,20 @@ namespace HerkulexApi
             var servoPos = convert2PosForServo(position);
             var lsb = servoPos;
             var msb = servoPos >> 8;
-            var myCommand = new HerkulexCommand(HerkulexCmd.S_JOG_REQ, Id);
+            var myCommand = new HerkulexSerialCommand(HerkulexCmd.S_JOG_REQ, Id);
 
             var myCommandHeader = new List<int>() {playTimeForServo, lsb, msb, 0x04, Id}; //0x04 stands for color green
            var sleepingTime = Convert.ToInt32(myPlayTime + 10);
-            Send2Servo(myCommand.ConstructMyCommand(myCommandHeader));
+            Send2Servo(myCommand.ConstructSerialProtocol(myCommandHeader));
             lastPosition = position;
             Thread.Sleep(sleepingTime);
         }
 
         public bool Status()
         {
-            var myCommand = new HerkulexCommand(HerkulexCmd.STAT_REQ, Id);
+            var myCommand = new HerkulexSerialCommand(HerkulexCmd.STAT_REQ, Id);
             var myCommandHeader = new List<int>();
-            var request = myCommand.ConstructMyCommand(myCommandHeader);
+            var request = myCommand.ConstructSerialProtocol(myCommandHeader);
             byte[] answer;
             try
             {
@@ -130,7 +130,7 @@ namespace HerkulexApi
             //things to do error checking for all errors according to page 41
             if (success)
             {
-                if (processedPackage[processedPackage.Count - 1] == 0 && processedPackage.Last() == 0)
+                if (processedPackage[processedPackage.Count - 2] == 0)
                 {
                     return true;
                 }
@@ -155,25 +155,25 @@ namespace HerkulexApi
 
         public void Reboot()
         {
-            var myCommand = new HerkulexCommand(HerkulexCmd.REBOOT_REQ, Id);
+            var myCommand = new HerkulexSerialCommand(HerkulexCmd.REBOOT_REQ, Id);
             var myCommandHeader = new List<int>();
-            Send2Servo(myCommand.ConstructMyCommand(myCommandHeader));
+            Send2Servo(myCommand.ConstructSerialProtocol(myCommandHeader));
         }
 
         public void ChangeBaudRate(HerkulexBaudRate baudRate)
         {
             //After u used this method, close the serial port and reopen it with the new baud rate 
-            var myCommand = new HerkulexCommand(HerkulexCmd.EEP_WRITE_REQ, Id);
+            var myCommand = new HerkulexSerialCommand(HerkulexCmd.EEP_WRITE_REQ, Id);
             var myCommandHeader = new List<int>(){(int)Ram.BAUD_RATE_EEP,0x01, (int)baudRate };
-            Send2Servo(myCommand.ConstructMyCommand(myCommandHeader));
+            Send2Servo(myCommand.ConstructSerialProtocol(myCommandHeader));
             Reboot();
         }
 
         public bool ChangeId(int newId)
         {
-            var myCommand = new HerkulexCommand(HerkulexCmd.EEP_WRITE_REQ, Id);
+            var myCommand = new HerkulexSerialCommand(HerkulexCmd.EEP_WRITE_REQ, Id);
             var myCommandHeader = new List<int>() { (int)Ram.SERVO_ID_EEP, 0x01, (int)newId };
-            Send2Servo(myCommand.ConstructMyCommand(myCommandHeader));
+            Send2Servo(myCommand.ConstructSerialProtocol(myCommandHeader));
             Thread.Sleep(1000);
             Reboot();
             Id = newId;
@@ -190,9 +190,9 @@ namespace HerkulexApi
             if (ratio > MaxAccRatio) this.accRatio = MaxAccRatio;
             else if (ratio < MinAccRatio) this.accRatio = MinAccRatio;
             else this.accRatio = ratio;
-            var myCommand = new HerkulexCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
+            var myCommand = new HerkulexSerialCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
             var myCommandHeader = new List<int>() { (int)Ram.ACCELERATION_RATIO_EEP, 1, ratio };
-            Send2Servo(myCommand.ConstructMyCommand(myCommandHeader));
+            Send2Servo(myCommand.ConstructSerialProtocol(myCommandHeader));
         }
 
         private void Send2Servo(byte[] data)
@@ -232,8 +232,8 @@ namespace HerkulexApi
 
         private Dictionary<HerkulexCmd, ACKPackage> CmdAckDictionary()
         {
-            var herkulexCmd = HerkulexCmd.GetValues(typeof(HerkulexCmd)).Cast<HerkulexCmd>();
-            var ackRespones = ACKPackage.GetValues(typeof(ACKPackage)).Cast<ACKPackage>();
+            var herkulexCmd = Enum.GetValues(typeof(HerkulexCmd)).Cast<HerkulexCmd>();
+            var ackRespones = Enum.GetValues(typeof(ACKPackage)).Cast<ACKPackage>();
             var Dict = herkulexCmd.Zip(ackRespones, (k, v) => new { k, v }).ToDictionary(el => el.k, el => el.v);
             return Dict;
         }

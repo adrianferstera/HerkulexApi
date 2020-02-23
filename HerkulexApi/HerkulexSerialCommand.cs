@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace HerkulexApi
 {
-    public class HerkulexCommand
+    public class HerkulexSerialCommand
     {
         public HerkulexCmd Cmd;
         public int MyServoId;
 
 
-        public HerkulexCommand(HerkulexCmd cmd, int myServoId)
+        public HerkulexSerialCommand(HerkulexCmd cmd, int myServoId)
         {
             Cmd = cmd;
             MyServoId = myServoId;
@@ -24,7 +24,7 @@ namespace HerkulexApi
             return myCommand;
         }
 
-        public byte[] ConstructMyCommand(List<int> optionalCommand)
+        public byte[] ConstructSerialProtocol(List<int> optionalCommand)
         {
             var myCommandHeader = ConstructCommand(); 
             myCommandHeader.AddRange(optionalCommand);
