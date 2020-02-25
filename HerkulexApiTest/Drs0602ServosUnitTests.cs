@@ -100,10 +100,10 @@ namespace HerkulexApiTest
             {
                 servo.TorqueOn();
                 servo.NeutralPosition = -60;
-                servo.MoveToNeutralPosition();
             }
             var replayer = new HerkulexAsyncReplayer(-60, 0);
-            replayer.StartSeries(HerkulexGuiMapper.WaveformType.PositiveSawtooth, 0.5, 1, 1, 10, myServos, true, 4);
+            //replayer.Move2Position(0.5, myServos);
+            replayer.StartSeries(HerkulexGuiMapper.WaveformType.Triangle, 0.5, 1, 1, 10, myServos, true, 4);
         }
 
         [TestMethod]

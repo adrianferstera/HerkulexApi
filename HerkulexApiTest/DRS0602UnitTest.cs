@@ -12,8 +12,10 @@ namespace HerkulexApiTest
         [TestInitialize]
         public void StartUp()
         {
-            myInterface = new HerkulexInterface("COM4", 57600);
-            myServo = new HerkulexDrs0602(7, myInterface);
+            var ports = HerkulexInterface.AvailableSerialPorts(); 
+            myInterface = new HerkulexInterface("COM12", 57600);
+            myServo = new HerkulexDrs0602(3, myInterface);
+
         }
         [TestCleanup]
         public void CleanUp()

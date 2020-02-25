@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO.Ports;
+using System.Linq;
 using System.Threading;
 
 namespace HerkulexApi
@@ -62,8 +63,9 @@ namespace HerkulexApi
 
         public static string[] AvailableSerialPorts()
         {
-            var availableSerialPorts = SerialPort.GetPortNames(); 
-            return availableSerialPorts;
+            var availableSerialPorts = SerialPort.GetPortNames().ToList();
+            availableSerialPorts.Sort();
+            return availableSerialPorts.ToArray();
         }
 
         public void Close()

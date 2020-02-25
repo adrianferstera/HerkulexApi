@@ -144,7 +144,7 @@ namespace HerkulexApi
             foreach (var target in targets)
             {
                 //target = minimum/maximum points of the waveform
-                if (accRatio != target.AccelerationRatio && target.AccelerationRatio >0)
+                if (accRatio != target.AccelerationRatio)
                 {
                     AccelerationRatio(target.AccelerationRatio);
                 }

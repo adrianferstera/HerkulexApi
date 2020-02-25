@@ -20,7 +20,7 @@ namespace HerkulexApi
         }
        public void StartSeries(WaveformType type, double fc, double maxAmplitude, double amplitude, double period, List<IHerkulexServo> servos, bool spatialOnlyPattern = false, int startServo = 1)
         {
-            var T = Convert.ToInt32(1 / fc * 1000); //T in ms
+           var T = Convert.ToInt32(1 / fc * 1000); //T in ms
             var pauseTimeBetweenServos = 0;
             if (spatialOnlyPattern) pauseTimeBetweenServos = T / servos.Count;
 
