@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HerkulexApi", "HerkulexApi\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HerkulexApiTest", "HerkulexApiTest\HerkulexApiTest.csproj", "{7632378C-30E1-49EE-8014-8ECA0BF8280A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HerkulexGuiMapper", "HerkulexGuiMapper\HerkulexGuiMapper.csproj", "{BA21C66C-DE1A-46B3-AA7B-3C3FAF66931C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{7632378C-30E1-49EE-8014-8ECA0BF8280A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7632378C-30E1-49EE-8014-8ECA0BF8280A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7632378C-30E1-49EE-8014-8ECA0BF8280A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BA21C66C-DE1A-46B3-AA7B-3C3FAF66931C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BA21C66C-DE1A-46B3-AA7B-3C3FAF66931C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BA21C66C-DE1A-46B3-AA7B-3C3FAF66931C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BA21C66C-DE1A-46B3-AA7B-3C3FAF66931C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
