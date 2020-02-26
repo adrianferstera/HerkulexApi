@@ -9,7 +9,7 @@ namespace HerkulexApi
     {
         public int Id { get; private set;  }
         public double MaxSpeed => 0.00274;
-        public int MaxAccRatio => 80;
+        public int MaxAccRatio => 50;
         public int MinAccRatio => 0;
 
         public int NeutralPosition
