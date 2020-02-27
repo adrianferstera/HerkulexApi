@@ -6,7 +6,7 @@ With some minor changes, it can be easily expanded to other versions of the Herk
 ## Getting Started
 * Connect the servo according to the manual to the computer. Connect a 14.8V power supply to the system, although they mentioed in the manual, that 7.4V is enough, it is not. The servo will directly go into an error mode (red blinking light). 
 * Connect the Serial interface to your computer. You do not need to buy the expensive and unhandy interface from Dongbu Robot. I just used the Adafruit CP2104 Friend. If you use this kind of interface, connect the RX line of the servo to the TX plug on the interface and vice versa. 
-* Enjoy!
+* All the example code below can be found in the Unit Tests.
 
 ### Installing
 *  Download the solution 
@@ -109,7 +109,7 @@ myInterface.Close();
 ```
 
 
-## Built With
+## Acknowledgement
 
 Thanks to Cesar Vandevelde [https://github.com/cesarvandevelde/HerkulexServo]. At some point the manual of the manufactorer was very unclear, so I used his Arduino Library to understand what the manual is trying to explain. 
 
