@@ -36,6 +36,9 @@ myServo.TorqueOn();
 
 // move the servo to position -40 deg in 500 ms
 myServo.MoveServoPosition(-40, 500);
+
+// Close the interface. 
+myInterface.Close();
 ```
 
 ## Step by Step Guide
@@ -61,7 +64,11 @@ Move the servo to its desired position between -159 deg and 159 deg. (See P.25 i
 ```
 myServo.MoveServoPosition(-40, 500);
 ```
-
+Close the interface. Otherwise another application cannot access it. 
+```
+// Close the interface. 
+myInterface.Close();
+```
 ## Change Baud Rate
 
 In order to change the servos baud rate, run the following example. After you have run it, the servo runs into an error mode (red blinking led). Just unplug the battery and plug it in again and reconnect the interface with the new baud rate. 
@@ -75,6 +82,9 @@ var myServo = new HerkulexDrs0602(219, myInterface);
 
 //Change baud rate.
 myServo.ChangeBaudRate(HerkulexBaudRate.RATE57600);
+
+// Close the interface. 
+myInterface.Close();
 ```
 
 ## Change Servo ID
@@ -92,6 +102,9 @@ var myServo = new HerkulexDrs0602(219, myInterface);
  
  if (success) Console.WriteLine("Successfully changed servo Id");
  else Console.WriteLine("Upppps, an error occured"); 
+ 
+ // Close the interface. 
+myInterface.Close();
  
 ```
 
