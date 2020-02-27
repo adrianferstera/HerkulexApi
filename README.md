@@ -27,6 +27,7 @@ Very important:
 ```
 // Default baud rate of the servos is 112500
 var myInterface = new HerkulexInterface("COM1", 112500);
+
 // Default id of the servos is 219
 var myServo = new HerkulexDrs0602(219, myInterface);
 
@@ -56,7 +57,7 @@ Enable the torque, otherwise the servo won't move at all:
 ```
 myServo.TorqueOn();
 ```
-Move the servo to its desired position between -159 deg and 159 deg:
+Move the servo to its desired position between -159 deg and 159 deg. (See P.25 in the manual):
 ```
 myServo.MoveServoPosition(-40, 500);
 ```
@@ -68,19 +69,30 @@ In order to change the servos baud rate, run the following example. After you ha
 ```
 // Default baud rate of the servos is 112500
 var myInterface = new HerkulexInterface("COM1", 112500);
+
 // Default id of the servos is 219
 var myServo = new HerkulexDrs0602(219, myInterface);
+
+//Change baud rate.
 myServo.ChangeBaudRate(HerkulexBaudRate.RATE57600);
 ```
 
 ## Change Servo ID
-To change the servo's id, run the following example. 
-### Break down into end to end tests
-
-Explain what these tests test and why
+To change the servo's id, run the following example. After you have successfully run this code sequence, reconnect the servo with new id. 
 
 ```
-Give an example
+// Default baud rate of the servos is 112500
+var myInterface = new HerkulexInterface("COM1", 112500);
+
+// Default id of the servos is 219
+var myServo = new HerkulexDrs0602(219, myInterface);
+
+//Change id (between 1 and 255).
+ var success = myServo.ChangeId(7);
+ 
+ if (success) Console.WriteLine("Successfully changed servo Id");
+ else Console.WriteLine("Upppps, an error occured"); 
+ 
 ```
 
 
