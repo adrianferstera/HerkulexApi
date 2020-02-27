@@ -17,7 +17,13 @@ namespace HerkulexApi
     public enum HerkulexBaudRate
     {
          DEFAULT115200 = 0x10,
-         RATE57600 = 0x22
+         RATE57600 = 0x22,
+         RATE1000000 = 0x01, 
+         RATE666666 = 0x02, 
+         RATE500000 = 0x03, 
+         RATE400000=0x04, 
+         RATE250000 = 0x07, 
+         RATE200000 = 0x09
     }
 
     public enum HerkulexColor
