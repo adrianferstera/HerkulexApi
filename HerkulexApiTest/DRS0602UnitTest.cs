@@ -1,4 +1,5 @@
-﻿using HerkulexApi;
+﻿using System.Threading;
+using HerkulexApi;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace HerkulexApiTest
@@ -13,7 +14,9 @@ namespace HerkulexApiTest
         public void StartUp()
         {
             var ports = HerkulexInterface.AvailableSerialPorts(); 
+            //default baudRate is 112500
             myInterface = new HerkulexInterface("COM12", 57600);
+            //default id: 219
             myServo = new HerkulexDrs0602(3, myInterface);
 
         }
@@ -22,16 +25,31 @@ namespace HerkulexApiTest
         {
             myInterface.Close();
         }
+
         [TestMethod]
         public void MoveServo()
         {
             myServo.TorqueOn();
             myServo.MoveServoPosition(-40, 500);
             myServo.MoveServoPosition(0, 500);
-            myServo.SetColor(HerkulexColor.BLUE);
-            var status = myServo.Status(); 
-            Assert.IsTrue(status);
         }
+        [TestMethod]
+        public void Status()
+        {
+           var status =  myServo.Status();
+           Assert.IsTrue(status);
+        }
+        [TestMethod]
+        public void ColorChange()
+        {
+            myServo.SetColor(HerkulexColor.RED);
+            Thread.Sleep(1500);
+            myServo.SetColor(HerkulexColor.BLUE);
+            Thread.Sleep(1500);
+            myServo.SetColor(HerkulexColor.GREEN);
+            Thread.Sleep(1500);
+        }
+
         [TestMethod]
         public void ChangeId()
         {
