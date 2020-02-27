@@ -109,7 +109,7 @@ myInterface.Close();
 ```
 
 
-## Built With
+## Acknowledgement
 
 Thanks to Cesar Vandevelde [https://github.com/cesarvandevelde/HerkulexServo]. At some point the manual of the manufactorer was very unclear, so I used his Arduino Library to understand what the manual is trying to explain. 
 
