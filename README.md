@@ -4,11 +4,14 @@ This C# solution can be used to programmatically control the Smart Robot Servo H
 With some minor changes, it can be easily expanded to other versions of the HerkuleX motor family. 
 
 ## Getting Started
-
-1 Download the solution 
-2 Open the solution in Visual Studio 
-3 Build the Solution
-4 Open the Unit Test Project
+#1 Connect the servo according to the manual to the computer. Connect a 14.8V power supply to the system, although they mentioed in the manual, that 7.4V is enough, it is not. The servo will directly go into an error mode (red blinking light). 
+#2 Connect the Serial interface to your computer. You do not need to buy the expensive and unhandy interface from Dongbu Robot. I just used the Adafruit CP2104 Friend. If you use this kind of interface, connect the RX line of the servo to the TX plug on the interface and vice versa. 
+#3 Enjoy!
+### Installing
+#1 Download the solution 
+#2 Open the solution in Visual Studio 
+#3 Build the Solution
+#4 Open the Unit Test Project
 
 
 
@@ -20,7 +23,7 @@ myServo.MoveServoPosition(-40, 500);
 myServo.MoveServoPosition(0, 500);
 ```
 
-### Installing
+
 
 A step by step series of examples that tell you how to get a development env running
 
@@ -64,17 +67,12 @@ Add additional notes about how to deploy this on a live system
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
 ## Contributing
 
 Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
 
 ## Authors
 
@@ -86,8 +84,4 @@ See also the list of [contributors](https://github.com/your/project/contributors
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
-## Acknowledgments
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
