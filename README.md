@@ -4,15 +4,15 @@ This C# solution can be used to programmatically control the Smart Robot Servo H
 With some minor changes, it can be easily expanded to other versions of the HerkuleX motor family. 
 
 ## Getting Started
-* 1 Connect the servo according to the manual to the computer. Connect a 14.8V power supply to the system, although they mentioed in the manual, that 7.4V is enough, it is not. The servo will directly go into an error mode (red blinking light). 
-* 2 Connect the Serial interface to your computer. You do not need to buy the expensive and unhandy interface from Dongbu Robot. I just used the Adafruit CP2104 Friend. If you use this kind of interface, connect the RX line of the servo to the TX plug on the interface and vice versa. 
-* 3 Enjoy!
+* Connect the servo according to the manual to the computer. Connect a 14.8V power supply to the system, although they mentioed in the manual, that 7.4V is enough, it is not. The servo will directly go into an error mode (red blinking light). 
+* Connect the Serial interface to your computer. You do not need to buy the expensive and unhandy interface from Dongbu Robot. I just used the Adafruit CP2104 Friend. If you use this kind of interface, connect the RX line of the servo to the TX plug on the interface and vice versa. 
+* Enjoy!
 
 ### Installing
-* 1 Download the solution 
-* 2 Open the solution in Visual Studio 
-* 3 Build the Solution
-* 4 Open the Unit Test Project
+*  Download the solution 
+*  Open the solution in Visual Studio 
+*  Build the Solution
+*  Open the Unit Test Project
 
 ## Using the software
 
@@ -27,7 +27,7 @@ Very important:
 ```
 // Default baud rate of the servos is 112500
 var myInterface = new HerkulexInterface("COM1", 112500);
-// Default id of the servos is 112500
+// Default id of the servos is 219
 var myServo = new HerkulexDrs0602(219, myInterface);
 
 // Enable torque otherwise the servo wont move
@@ -37,28 +37,44 @@ myServo.TorqueOn();
 myServo.MoveServoPosition(-40, 500);
 ```
 
+## Step by Step Guide
 
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
+Initialize an instance of the interface the servo and computer are going to communicate through: 
 ```
-Give the example
-```
-
-And repeat
-
-```
-until finished
+// Default baud rate of the servos is 112500
+var myInterface = new HerkulexInterface("COM1", 112500);
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+Initialize the servo with its unique ID and the interface to which the servo is connected to: 
 
-## Running the tests
+```
+// Default id of the servos is 219
+var myServo = new HerkulexDrs0602(219, myInterface);
+```
+Enable the torque, otherwise the servo won't move at all: 
+```
+myServo.TorqueOn();
+```
+Move the servo to its desired position between -159 deg and 159 deg:
+```
+myServo.MoveServoPosition(-40, 500);
+```
 
-Explain how to run the automated tests for this system
+## Change Baud Rate
 
+In order to change the servos baud rate, run the following example. After you have run it, the servo runs into an error mode (red blinking led). Just unplug the battery and plug it in again and reconnect the interface with the new baud rate. 
+
+```
+// Default baud rate of the servos is 112500
+var myInterface = new HerkulexInterface("COM1", 112500);
+// Default id of the servos is 219
+var myServo = new HerkulexDrs0602(219, myInterface);
+myServo.ChangeBaudRate(HerkulexBaudRate.RATE57600);
+```
+
+## Change Servo ID
+To change the servo's id, run the following example. 
 ### Break down into end to end tests
 
 Explain what these tests test and why
