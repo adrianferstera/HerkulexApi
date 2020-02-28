@@ -3,12 +3,20 @@ using System.Collections.Generic;
 
 namespace HerkulexApi
 {
+    /// <summary>
+    /// Class to create a HerkuleX specific serial communication protocol. 
+    /// </summary>
     public class HerkulexSerialCommand
     {
         public HerkulexCmd Cmd;
         public int MyServoId;
 
 
+        /// <summary>
+        /// Creates an instance of a serial command
+        /// </summary>
+        /// <param name="cmd">Command type</param>
+        /// <param name="myServoId">Id which this command should be addressed to.</param>
         public HerkulexSerialCommand(HerkulexCmd cmd, int myServoId)
         {
             Cmd = cmd;
@@ -24,6 +32,11 @@ namespace HerkulexApi
             return myCommand;
         }
 
+        /// <summary>
+        /// Construct the serial command
+        /// </summary>
+        /// <param name="optionalCommand">The optional data which should be send to the servo.</param>
+        /// <returns></returns>
         public byte[] ConstructSerialProtocol(List<int> optionalCommand)
         {
             var myCommandHeader = ConstructCommand(); 

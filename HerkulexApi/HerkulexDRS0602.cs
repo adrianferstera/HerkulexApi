@@ -5,13 +5,31 @@ using System.Threading;
 
 namespace HerkulexApi
 {
+    /// <summary>
+    /// A class to programmatically control a HerkuleX DRS 00602 Smart Robot Servo
+    /// </summary>
     public class HerkulexDrs0602 : IHerkulexServo
     {
+        /// <summary>
+        /// Unique Id of the servo in the network. 
+        /// </summary>
         public int Id { get; private set;  }
+        /// <summary>
+        /// Maxmimum possible speed of the servo in seconds per degree
+        /// </summary>
         public double MaxSpeed => 0.00274;
+        /// <summary>
+        /// Maxmimum possible acceleration ratio. 
+        /// </summary>
         public int MaxAccRatio => 50;
+        /// <summary>
+        /// Minimum possible acceleration ratio.
+        /// </summary>
         public int MinAccRatio => 0;
 
+        /// <summary>
+        /// The neutral position of the servo. Can be between -159 and 159 degrees.
+        /// </summary>
         public int NeutralPosition
         {
             get => neutralPos;
@@ -40,6 +58,11 @@ namespace HerkulexApi
 
 
 
+        /// <summary>
+        /// Creates an instance of the HerkuleX DRS 0602 class according to the input parameters
+        /// </summary>
+        /// <param name="id">Unique id of this servo</param>
+        /// <param name="herkulexInterface">The interface which this class should use to communicate with the servo. </param>
         public HerkulexDrs0602(int id, HerkulexInterface herkulexInterface)
         {
             Id = id;
@@ -50,11 +73,17 @@ namespace HerkulexApi
             TorqueOff();
         }
 
+        /// <summary>
+        /// Move the servo to its neutral position. 
+        /// </summary>
         public void MoveToNeutralPosition()
         {
             MoveServoPosition(neutralPos, 1000);
         }
 
+        /// <summary>
+        /// Enable the torque of the servo
+        /// </summary>
         public void TorqueOn()
         {
             var myCommand = new HerkulexSerialCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
@@ -63,6 +92,9 @@ namespace HerkulexApi
 
         }
 
+        /// <summary>
+        /// Disable the torque of the servo
+        /// </summary>
         public void TorqueOff()
         {
             var myCommand = new HerkulexSerialCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
@@ -78,6 +110,10 @@ namespace HerkulexApi
             return Convert.ToInt32(positionForServo);
         }
 
+        /// <summary>
+        /// Set the color of the LED
+        /// </summary>
+        /// <param name="color"></param>
         public void SetColor(HerkulexColor color)
         {
             var command = new HerkulexSerialCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
@@ -85,6 +121,12 @@ namespace HerkulexApi
             Send2Servo(finalCommand);
         }
 
+        /// <summary>
+        /// Move the servo to a position and waits until it is there.
+        /// </summary>
+        /// <param name="position">The target position in degrees</param>
+        /// <param name="playTime">Amount of time servo should use to reach the target position.</param>
+        /// <exception cref="InvalidOperationException"></exception>
         public void MoveServoPosition(double position, int playTime)
         {
             var myPlayTime = playTime;
@@ -111,6 +153,11 @@ namespace HerkulexApi
             Thread.Sleep(sleepingTime);
         }
 
+        /// <summary>
+        /// Status of the servo. 
+        /// </summary>
+        /// <returns>true if there is no error, and false if there is an error.</returns>
+        /// <exception cref="Exception">If there was a connection error with the servo.</exception>
         public bool Status()
         {
             var myCommand = new HerkulexSerialCommand(HerkulexCmd.STAT_REQ, Id);
@@ -139,6 +186,10 @@ namespace HerkulexApi
             return false;
         }
 
+        /// <summary>
+        /// Plays a series of targets.
+        /// </summary>
+        /// <param name="targets">List with all targets which should be reached</param>
         public void PlaySeries(IEnumerable<HerkulexDatapoint> targets)
         {
             foreach (var target in targets)
@@ -153,6 +204,9 @@ namespace HerkulexApi
             }
         }
 
+        /// <summary>
+        /// Reboots the servo. 
+        /// </summary>
         public void Reboot()
         {
             var myCommand = new HerkulexSerialCommand(HerkulexCmd.REBOOT_REQ, Id);
@@ -160,15 +214,24 @@ namespace HerkulexApi
             Send2Servo(myCommand.ConstructSerialProtocol(myCommandHeader));
         }
 
-        public void ChangeBaudRate(HerkulexBaudRate baudRate)
+        /// <summary>
+        /// Change the communication baud rate of the servo. 
+        /// </summary>
+        /// <param name="newBaudRate">New baud rate</param>
+        public void ChangeBaudRate(HerkulexBaudRate newBaudRate)
         {
             //After u used this method, close the serial port and reopen it with the new baud rate 
             var myCommand = new HerkulexSerialCommand(HerkulexCmd.EEP_WRITE_REQ, Id);
-            var myCommandHeader = new List<int>(){(int)Ram.BAUD_RATE_EEP,0x01, (int)baudRate };
+            var myCommandHeader = new List<int>(){(int)Ram.BAUD_RATE_EEP,0x01, (int)newBaudRate };
             Send2Servo(myCommand.ConstructSerialProtocol(myCommandHeader));
             Reboot();
         }
 
+        /// <summary>
+        /// Change the unique Id of the servo.
+        /// </summary>
+        /// <param name="newId">New unique Id</param>
+        /// <returns></returns>
         public bool ChangeId(int newId)
         {
             var myCommand = new HerkulexSerialCommand(HerkulexCmd.EEP_WRITE_REQ, Id);
@@ -184,14 +247,18 @@ namespace HerkulexApi
         }
 
 
-        public void AccelerationRatio(int ratio)
+        /// <summary>
+        /// Change the acceleration ratio of the servo. Can be between max- and minAcceleration ratio
+        /// </summary>
+        /// <param name="newAccRatio">New acceleration ratio</param>
+        public void AccelerationRatio(int newAccRatio)
         {
             //higher the ratio, smoother the acceleration 
-            if (ratio > MaxAccRatio) this.accRatio = MaxAccRatio;
-            else if (ratio < MinAccRatio) this.accRatio = MinAccRatio;
-            else this.accRatio = ratio;
+            if (newAccRatio > MaxAccRatio) this.accRatio = MaxAccRatio;
+            else if (newAccRatio < MinAccRatio) this.accRatio = MinAccRatio;
+            else this.accRatio = newAccRatio;
             var myCommand = new HerkulexSerialCommand(HerkulexCmd.RAM_WRITE_REQ, Id);
-            var myCommandHeader = new List<int>() { (int)Ram.ACCELERATION_RATIO_EEP, 1, ratio };
+            var myCommandHeader = new List<int>() { (int)Ram.ACCELERATION_RATIO_EEP, 1, accRatio };
             Send2Servo(myCommand.ConstructSerialProtocol(myCommandHeader));
         }
 
@@ -232,6 +299,7 @@ namespace HerkulexApi
 
         private Dictionary<HerkulexCmd, ACKPackage> CmdAckDictionary()
         {
+            // map the command with the answer package according to the manual. 
             var herkulexCmd = Enum.GetValues(typeof(HerkulexCmd)).Cast<HerkulexCmd>();
             var ackRespones = Enum.GetValues(typeof(ACKPackage)).Cast<ACKPackage>();
             var Dict = herkulexCmd.Zip(ackRespones, (k, v) => new { k, v }).ToDictionary(el => el.k, el => el.v);

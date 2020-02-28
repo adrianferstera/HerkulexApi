@@ -17,7 +17,7 @@ namespace HerkulexApi
         void Reboot();
         void SetColor(HerkulexColor color);
         void PlaySeries(IEnumerable<HerkulexDatapoint> targets);
-        void ChangeBaudRate(HerkulexBaudRate baudRate);
+        void ChangeBaudRate(HerkulexBaudRate newBaudRate);
         bool ChangeId(int newId);
         void AccelerationRatio(int ratio); 
 
